@@ -1,56 +1,153 @@
 <?php
-	function filterPortal ($portals) 
+	function filterPortal ($portal) 
 	{ 
-		$filteredPortals = array();
-		foreach($portals as $portal){
-			$index = strpos($portal, ">") + 1; #localiza onde o nome do portal começa
-			$filteredPortal = substr($portal, $index, strlen($portal)-$index-4); #pega o nome do portal
-			array_push($filteredPortals, $filteredPortal); #adiciona no vetor
-		} 
-		return $filteredPortals; #retorna o vetor;
+        $count = 0;
+        $endIndex;
+        while($count != 2){
+            if($portal[$endIndex] == '>'){
+                $index = $endIndex;
+            }
+            if($portal[$endIndex] == '<'){
+                $count++;
+            }
+            $endIndex++;
+        }
+        $endIndex -= 1;
+        $index += 1;
+        $filteredPortal = substr($portal, $index, $endIndex - $index); #pega o nome do portal
+		return $filteredPortal; #retorna o vetor;
+    } 
+    
+    function mac_filterPortal ($portal) 
+	{         
+        $aux = strpos($portal, "a class=\"source\"");
+        $count;
+        $endIndex;
+        while($count != 1){
+            if($portal[$aux] == '>'){
+                $index = $aux+1;
+            }
+            if($portal[$aux] == '<'){
+                $endIndex = $aux;
+                $count++;
+            }
+            $aux++;
+        }
+        $filteredPortal = substr($portal, $index, $endIndex - $index); #pega o nome do portal
+        return $filteredPortal; #retorna o vetor;
 	} 
 
-	function filterTitle ($titles) 
+	function filterTitle ($title) 
 	{ 
-		$filteredTitles = array();
-		foreach($titles as $title){
-			$index = strpos($title, ">") + 1; #localiza onde o nome do titulo começa
-			$filteredTitle = substr($title, $index, strlen($title)-$index); #pega o nome do titulo
-			array_push($filteredTitles, $filteredTitle); #adiciona no vetor
-		} 
-		return $filteredTitles; #retorna o vetor;
+        $aux = strlen($title)-1;
+        $count;
+        $endIndex;
+        while($count != 2){
+            if($title[$aux] == '<'){
+                $endIndex = $aux;
+            }
+            if($title[$aux] == '>'){
+                $count++;
+            }
+            $aux--;
+        }
+        $index = $aux + 2;
+        $filteredTitle = substr($title, $index, $endIndex - $index); #pega o nome do portal
+		return $filteredTitle; #retorna o vetor;
 	} 
 
-	function filterEngagement($engagements) 
+    
+	function mac_filterTitle ($title) 
+	{         
+        $aux = strpos($title, "a class=\"title\"");
+        echo "aux: $aux\n";
+        $count;
+        $endIndex;
+        while($count != 1){
+            if($title[$aux] == '>'){
+                $index = $aux+1;
+            }
+            if($title[$aux] == '<'){
+                $endIndex = $aux;
+                $count++;
+            }
+            $aux++;
+        }
+        $filteredTitle = substr($title, $index, $endIndex - $index); #pega o nome do portal
+        return $filteredTitle; #retorna o vetor;
+    } 
+    
+	function filterEngagement($engagement) 
 	{ 
-		$filteredEngagements = array();
-		foreach($engagements as $engagement){
-			$index = strpos($engagement, ">") + 1; #localiza onde o numero dos cliques começa
-			$filteredEngagement = substr($engagement, $index, strlen($engagement)-$index-7); #pega o numero dos cliques
-			echo "";
-			if(strpos($filteredEngagement, "+") !== false){ #retira o caractere '+'
-				$filteredEngagement[strpos($filteredEngagement, "+")] = '^';
-			}
-			else{
-				$filteredEngagement = $filteredEngagement . ".";
-			}
-			array_push($filteredEngagements, $filteredEngagement); #adiciona no vetor
-		} 
-		return $filteredEngagements; #retorna o vetor;
-	} 
+        $aux = strpos($engagement, "div class=\"engagement-container\"");
+        if($aux === false){
+            return 0;
+        }
+        $count;
+        $endIndex;
+        while($count != 2){
+            if($engagement[$aux] == '>'){
+                $count++;
+            }
+            $aux++;
+        }
+        $index = $aux;
+        $endIndex = $index;
+        while($engagement[$endIndex] != '<'){
+            $endIndex++;
+        }
+        $endindex--;
+        $filteredEngagement = substr($engagement, $index, $endIndex - $index); #pega o nome do portal
+		return $filteredEngagement; #retorna o vetor;
+    } 
 
-	$content = file_get_contents($argv[1]);
-	preg_match_all('/<div class=\"meta\-column\">(.*?)<\/div>/s',$content,$news_portal); #aqui a gente tá pegando o html do portal da noticia
-	preg_match_all("'a class=\"title\"(.*?)</a>'si",$content,$news_title); 
-		#aqui  gente tá pegando o html do titulo da noticia
-	preg_match_all('/<div class=\"engagement\-container\">(.*?)<\/div>/s',$content,$news_engagement); #aqui a gente tá pegando o html dos acessos da noticia
-	$portals = filterPortal($news_portal[1]); #retirando as tags html
-	$titles = filterTitle($news_title[1]); #retirando as tags html
-	$engagements = filterEngagement($news_engagement[1]); #retirando as tags html
-	$csvLines = array(); #criando um vetor para armazenar os dados csv
-	for ($i=0; $i < sizeof($engagements); $i++) { 
-		array_push($csvLines, "\"$portals[$i]\",\"$titles[$i]\",\"$engagements[$i]\"\n") ; #armazenando nossos dados no vetor
-	}
+    function mac_filterEngagement($engagement) 
+	{ 
+        $aux = strpos($engagement, "data-dot=\"engagement-count\"");
+        echo "EOQ";
+        sleep(1000);
+        if($aux === false){
+            return 0;
+        }
+        $count;
+        $endIndex;
+        $index;
+        while($count != 1){
+            if($engagement[$aux] == '>'){
+                $index = $aux+1;
+            }
+            if($engagement[$aux] == '<'){
+                $endIndex = $aux;
+                $count++;
+            }
+            $aux++;
+        }
+        $filteredEngagement = substr($engagement, $index, $endIndex - $index); #pega o nome do portal
+        return $filteredEngagement; #retorna o vetor;
+    } 
+
+    $isMac = false;
+    $content = file_get_contents($argv[1]);
+	preg_match_all('/<div class=\"meta\-column\">(.*?)<div class=\"summary\">/s',$content,$news_content); #aqui a gente tá pegando o html da noticia
+    print(sizeof($news_content[1]));
+    if(sizeof($news_content[1]) == 0){
+        preg_match_all('/<div class=\"content\">(.*?)<div class=\"visual\"/s',$content,$news_content); #aqui a gente tá pegando o html da noticia
+        $isMac = true;
+    }
+    $csvLines = array(); #criando um vetor para armazenar os dados csv
+    foreach($news_content[1] as $news){
+        if($isMac == false){
+            $title = filterTitle($news); #retirando as tags html
+            $portal = filterPortal($news); #retirando as tags html
+            $engagement = filterEngagement($news); #retirando as tags html
+        }
+        else{
+            $title = mac_filterTitle($news);
+            $portal = mac_filterPortal($news); #retirando as tags html
+            $engagement = mac_filterEngagement($news); #retirando as tags html
+        }
+		array_push($csvLines, "\"$portal\",\"$title\",\"$engagement\"\n") ; #armazenando nossos dados no vetor
+    }
 	$file = fopen("results.csv", "w+"); #abrindo o arquivo pra armazenar os dados
 	fwrite($file, "Portal,Titulo,Acesso\n"); #criando cabeçalho do csv
 	$contador = 1;
